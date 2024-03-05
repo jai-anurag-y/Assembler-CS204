@@ -98,6 +98,52 @@ string Iformat (vector <string> &instruction)
 
 
 
+string Sformat (vector <string> &instruction)
+{
+    if (instruction.size() != 3)
+        return "Invalid instruction format";
+
+    string opcode_temp = codes_map[instruction[0]][0];
+    string func3_temp = codes_map[instruction[0]][1];
+
+
+    int opcode = stoi(opcode_temp, nullptr, 16);
+    int func3 = stoi(func3_temp, nullptr, 16);
+    int rs2 = stoi(instruction[1].substr(1));
+    int imm, rs1;
+
+
+    string str = instruction[2];
+    size_t start_pos = str.find('(');
+    size_t end_pos = str.find(')');
+
+
+    string imm_str = str.substr(0,start_pos);
+    if (imm_str[0] == '0' && (imm_str[1] == 'x' || imm_str[1] == 'X'))
+        imm = stoi(imm_str.substr(2), nullptr, 16);
+    else
+        imm = stoi(imm_str);
+    int imm1,imm2;
+    imm1 = (imm>>5) & 127;
+    imm2 = (imm) & 31;
+
+    rs1 = stoi((str.substr(start_pos+1,end_pos - start_pos -1)).substr(1));
+
+
+    ll machineCode = (imm1 << 25) | (rs2 << 20) | (rs1 << 15) | (func3 << 12) | (imm2 << 7) | opcode;
+    stringstream ss;
+    ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
+
+
+    cout << ss.str()<< endl;
+    return ss.str();
+}
+
+
+
+
+
+
 int main() {
     ifstream inputFile("ex.asm");
     ofstream dataTokenFile("output_token.mc");
