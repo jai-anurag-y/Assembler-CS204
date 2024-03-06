@@ -37,6 +37,16 @@ string Rformat (vector <string> &instruction)
 
 
 
+
+
+
+
+
+
+
+
+
+
 string Iformat (vector <string> &instruction)
 {
     // Validate instruction format
@@ -124,6 +134,17 @@ string Iformat (vector <string> &instruction)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 string Sformat (vector <string> &instruction)
 {
     if (instruction.size() != 3)
@@ -181,6 +202,76 @@ string Sformat (vector <string> &instruction)
     cout << ss.str()<< endl;
     return ss.str();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+string Uformat (vector <string> &instruction)
+{
+    if (instruction.size() != 3)
+        return "Invalid instruction format";
+
+    string opcode_temp = codes_map[instruction[0]][0];
+    int opcode = stoi(opcode_temp, nullptr, 16);
+    int rd = stoi(instruction[1].substr(1));
+    ll imm;
+
+    string imm_str = instruction[2];
+    int flag2 = 0;
+    if (imm_str[0] == '-'){
+        imm_str = imm_str.substr(1);
+        flag2 = 1;
+    }
+
+    if (imm_str[0] == '0' && (imm_str[1] == 'x' || imm_str[1] == 'X')){
+        imm = stol(imm_str.substr(2), nullptr, 16);
+    }
+    else{
+        imm = stol(imm_str);
+
+    }
+
+    if (flag2) imm *= -1;
+    if (imm<0){
+        imm = (1 << 20) + imm;
+        imm = imm & 0xFFFFF;
+    }
+
+
+    ll machineCode = (imm << 12) | (rd << 7) | opcode;
+    stringstream ss;
+    ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
+
+
+    cout << ss.str()<< endl;
+    return ss.str();
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
