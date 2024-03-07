@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include "lookup.cpp"
 #include "format.cpp"
 using namespace std;
 #define ll long long int
@@ -10,7 +9,7 @@ int dataAddress = 0x10000000;
 
 int main() {
 
-    map<string,string> varmap;
+    map<string,int> varmap;
     map<int,string> dataSegment;
 
     ifstream inputFile("ex.asm");
@@ -61,10 +60,12 @@ int main() {
 
         if(flag)
         {
+            tokens[0].pop_back();
             if (tokens[1][0] == '.') 
             {    
                 if(datatype_map.find(tokens[1])!=datatype_map.end())
                 {
+                    varmap[tokens[0]] = dataAddress;
                     int i=2;
                     string s = tokens[i];
                     while(i!=tokens.size())
@@ -80,6 +81,7 @@ int main() {
                 }
                 else if(tokens[1] == ".asciiz")
                 {
+                    varmap[tokens[0]] = dataAddress;
                     int i=2,a=tokens.size();
                     string s = tokens[i];
                     while(i<a)
@@ -110,6 +112,11 @@ int main() {
     {
         dataOutputFile<<"0x"<<std::hex<<it.first<<" "<<it.second<<endl;
     }
+
+    // for(auto it: varmap)
+    // {
+    //     dataOutputFile<<it.first<<" "<<std::hex<<it.second<<endl;
+    // }
 
     inputFile.close();
     dataOutputFile.close();
