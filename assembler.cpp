@@ -220,6 +220,76 @@ string Sformat (vector <string> &instruction)
 
 
 
+string SBformat (vector <string> &instruction)
+{
+    if (instruction.size() != 4)
+        return "Invalid instruction format";
+
+    string opcode_temp = codes_map[instruction[0]][0];
+    string func3_temp = codes_map[instruction[0]][1];
+
+
+    int opcode = stoi(opcode_temp, nullptr, 16);
+    int func3 = stoi(func3_temp, nullptr, 16);
+    int rs1 = stoi(instruction[1].substr(1));
+    int rs2 = stoi(instruction[2].substr(1));
+    ll imm;
+
+    string imm_str = instruction[3];
+    int flag2 = 0;
+    if (imm_str[0] == '-'){
+        imm_str = imm_str.substr(1);
+        flag2 = 1;
+    }
+
+    if (imm_str[0] == '0' && (imm_str[1] == 'x' || imm_str[1] == 'X')){
+        imm = stol(imm_str.substr(2), nullptr, 16);
+    }
+    else{
+        imm = stol(imm_str);
+
+    }
+
+    if (flag2) imm *= -1;
+    if (imm<0){
+        imm = (1 << 20) + imm;
+        imm = imm & 0xFFFFF;
+    }
+
+    //shuffling part
+    ll imm1=0,imm2=0;
+    imm1 |= ((imm>>12) & 1)<<6;
+    imm1 |= ((imm>>5) & 0x3f);
+    imm2 |= ((imm>>1) & 0xf)<<1;
+    imm2 |= ((imm>>11) & 1);
+
+    ll machineCode = (imm1 << 25) | (rs2 << 20) | (rs1 << 15) | (func3 << 12) | (imm2 << 7) | opcode;
+    stringstream ss;
+    ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
+
+
+    cout << ss.str()<< endl;
+    return ss.str();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 string Uformat (vector <string> &instruction)
 {
