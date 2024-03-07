@@ -277,6 +277,72 @@ string Uformat (vector <string> &instruction)
 
 
 
+string UJformat (vector <string> &instruction)
+{
+    if (instruction.size() != 3)
+        return "Invalid instruction format";
+
+    string opcode_temp = codes_map[instruction[0]][0];
+    int opcode = stoi(opcode_temp, nullptr, 16);
+    int rd = stoi(instruction[1].substr(1));
+    ll imm;
+
+    string imm_str = instruction[2];
+    int flag2 = 0;
+    if (imm_str[0] == '-'){
+        imm_str = imm_str.substr(1);
+        flag2 = 1;
+    }
+
+    if (imm_str[0] == '0' && (imm_str[1] == 'x' || imm_str[1] == 'X')){
+        imm = stol(imm_str.substr(2), nullptr, 16);
+    }
+    else{
+        imm = stol(imm_str);
+
+    }
+
+    if (flag2) imm *= -1;
+    if (imm<0){
+        imm = (1 << 20) + imm;
+        imm = imm & 0xFFFFF;
+    }
+
+    //shuffling part
+    ll shuffled_imm = 0;
+    shuffled_imm |= ((imm>>20) & 1)<<20; //20th bit
+    shuffled_imm |= ((imm>>1) & 0x3ff)<<10; //19th - 10th bit
+    shuffled_imm |= ((imm>>11) & 1)<<9; //9th bit
+    shuffled_imm |= ((imm>>12) & 0xff)<<1; //8th - 1th bit
+
+    shuffled_imm >>=1;//discarding 0th bit
+    if (flag2) shuffled_imm |= 1<<19; //for negative values it should be sign extended
+
+
+    ll machineCode = (shuffled_imm << 12) | (rd << 7) | opcode;
+    stringstream ss;
+    ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
+
+
+    cout << ss.str()<< endl;
+    return ss.str();
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int main() {
     ifstream inputFile("ex.asm");
