@@ -4,6 +4,7 @@ using namespace std;
 #define ll long long int
 
 int dataAddress = 0x10000000;
+int pc = 0;
 
 
 
@@ -11,6 +12,7 @@ int main() {
 
     map<string,int> varmap;
     map<int,string> dataSegment;
+    map<string,int> label;
 
     ifstream inputFile("ex.asm");
     ofstream dataOutputFile("output_data.mc");
@@ -81,32 +83,85 @@ int main() {
                 }
                 else if(tokens[1] == ".asciiz")
                 {
-                    varmap[tokens[0]] = dataAddress;
-                    int i=2,a=tokens.size();
-                    string s = tokens[i];
-                    while(i<a)
-                    {
-                        for (char c : s) 
-                        {
-                            if(c=='"'){
-                                continue;
-                            }
-                            dataSegment[dataAddress] = c;
-                            dataAddress += 1;
-                        }
-                        dataSegment[dataAddress] = "0";
-                        dataAddress += 1;
-                        i++;
-                        if(i!=a){
-                            s=tokens[i];
-                        }
+                    if(tokens.size()!=3){
+                        dataOutputFile<<"Error for "<<tokens[0]<<endl;
+                        break;
                     }
+                    varmap[tokens[0]] = dataAddress;
+                    string s = tokens[2];
+                    for (char c : s) 
+                    {
+                        if(c=='"'){
+                            continue;
+                        }
+                        dataSegment[dataAddress] = c;
+                        dataAddress += 1;
+                    }
+                    dataSegment[dataAddress] = "0";
+                    dataAddress += 1;
                 }
             }
 
             
         }
+    
+        else{
+            if(type_map.find(tokens[0])!=type_map.end())
+            {
+                char type = type_map[tokens[0]];
+                switch(type){
+                case 'r':
+                    {
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Rformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }
+                case 'i':
+                    {
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Iformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }
+                case 's':
+                    {
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Sformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }
+                case 'b':
+                    {
+                        tokens[3]=to_string(label[tokens[3]]-pc);
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<SBformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }
+                case 'u':
+                    {
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Uformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }
+                case 'j':
+                    {
+                        tokens[2]=to_string(label[tokens[2]]-pc);
+                        dataOutputFile<<"0x"<<std::hex<<pc<<" "<<UJformat(tokens)<<endl;
+                        pc+=4;
+                        break;
+                    }    
+                default:
+                {
+                    dataOutputFile<<"Error"<<endl;
+                }
+                }
+            }
+            else if(tokens.size()==1){
+                tokens[0].pop_back();
+                label[tokens[0]] = pc;
+            }
+        }
     }
+
+    dataOutputFile<<endl<<"Data Segment"<<endl;
 
     for(auto it: dataSegment)
     {
@@ -124,3 +179,4 @@ int main() {
 
     return 0;
 }
+
