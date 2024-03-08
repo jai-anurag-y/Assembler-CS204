@@ -98,3 +98,43 @@ unordered_map <string, string> register_map = {
     {"t5", "x30"},
     {"t6", "x31"},
 };
+
+unordered_map <string,char> type_map = {
+
+    {"add", 'r'},
+    {"and", 'r'},
+    {"or", 'r'},
+    {"sll", 'r'},
+    {"slt", 'r'},
+    {"sra", 'r'},
+    {"srl", 'r'},
+    {"sub", 'r'},
+    {"xor", 'r'},
+    {"mul", 'r'},
+    {"div", 'r'},
+    {"rem", 'r'},
+
+    {"addi", 'i'},
+    {"andi", 'i'},
+    {"ori", 'i'},
+    {"lb", 'i'},
+    {"ld", 'i'},
+    {"lh", 'i'},
+    {"lw", 'i'},
+    {"jalr", 'i'},
+
+    {"sb", 's'},
+    {"sw", 's'},
+    {"sd", 's'},
+    {"sh", 's'},
+
+    {"beq", 'b'},
+    {"bne", 'b'},
+    {"bge", 'b'},
+    {"blt", 'b'},
+
+    {"auipc", 'u'},
+    {"lui", 'u'},
+
+    {"jal", 'j'}
+};
