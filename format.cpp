@@ -108,7 +108,7 @@ string Iformat (vector <string> &instruction)
         if (imm_str[0] == '0' && (imm_str[1] == 'x' || imm_str[1] == 'X'))
             imm = stoi(imm_str.substr(2), nullptr, 16);
         else{
-            imm = stoi(instruction[3]);
+            imm = stoi(imm_str);
         }
         
         if (flag2) imm *= -1;
@@ -398,4 +398,3 @@ string UJformat (vector <string> &instruction)
     return ss.str();
 
 }
-
