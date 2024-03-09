@@ -11,17 +11,17 @@ int pc = 0;
 int main() {
 
     map<string,int> varmap;
-    map<int,string> dataSegment;
+    map<int,int> dataSegment;
     map<string,int> label;
 
     ifstream inputFile("ex.asm");
     ofstream dataOutputFile("output_data.mc");
     ofstream dataTokenFile("output_token.mc");
     string line;
-    int flag=0;
+    int flag=0,comment=0;
 
     while (getline(inputFile, line)){
-        if (line.empty() || line[0] == '#') {
+        if (line.empty()) {
             continue;
         }
         else{
@@ -30,15 +30,19 @@ int main() {
             string token;
             while (ss >> token) {
                 //dataTokenFile<<token<<endl;
+                if(token[0] == '#')
+                {
+                    break;
+                }
                 if (token == ".text") 
                 {
                     flag=0;
-                    continue;
+                    break;
                 } 
                 else if (token == ".data") 
                 {
                     flag=1;
-                    continue;
+                    break;
                 }
                 int a = token.size();
                 if(token[a-1]==':' && !flag){
@@ -48,6 +52,13 @@ int main() {
                 }
                 else if(!flag){
                     pc+=4;
+                    // if(token[0]=='l'){
+                    //     while(ss>>token){
+                    //         if(varmap[token]!=0){
+                    //             pc+=4;
+                    //         }
+                    //     }
+                    // }
                 }
                 break;
             }
@@ -62,7 +73,7 @@ int main() {
     flag=0;
 
     while (getline(inputFile, line)) {
-        if (line.empty() || line[0] == '#') {
+        if (line.empty()) {
             continue;
         }
 
@@ -71,7 +82,16 @@ int main() {
         string token,temp;
         while (ss >> token) {
             for(char c: token){
-                if(c==','){
+                if(c == '#'){
+                    if(!temp.empty() && !comment){
+                        tokens.push_back(temp);
+                        dataTokenFile<<temp<<endl;
+                    }
+                    temp="";
+                    comment=1;
+                    break;
+                }
+                else if(c == ','){
                     tokens.push_back(temp);
                     dataTokenFile<<temp<<endl;
                     temp="";
@@ -79,15 +99,21 @@ int main() {
                     temp+=c;
                 }     
             }
-            if(!temp.empty()){
+            if(!temp.empty() && !comment){
                 tokens.push_back(temp);
                 dataTokenFile<<temp<<endl;
             }
             temp="";
+            if(comment){
+                break;
+            }
         }
 
+        comment = 0;
 
-
+        if(tokens.empty()){
+            continue;
+        }
 
 
         if (tokens[0] == ".text") 
@@ -113,8 +139,19 @@ int main() {
                     string s = tokens[i];
                     while(i!=tokens.size())
                     {
-                        dataSegment[dataAddress] = s;
-                        dataAddress += datatype_map[tokens[1]];
+                        int n;
+                        if(s[0]=='0'&&(s[1]=='x'||s[1]=='X')){
+                            n = stoi(s.substr(2), nullptr, 16);
+                        }
+                        else{
+                            n = stoi(s);
+                        }
+                        int j=datatype_map[tokens[1]];
+                        while(j--){
+                            dataSegment[dataAddress] = n&511;
+                            n=n>>8;
+                            dataAddress += 1;
+                        }
                         i++;
                         if(i!=tokens.size()){
                             s=tokens[i];
@@ -138,7 +175,7 @@ int main() {
                         dataSegment[dataAddress] = c;
                         dataAddress += 1;
                     }
-                    dataSegment[dataAddress] = "0";
+                    dataSegment[dataAddress] = 0;
                     dataAddress += 1;
                 }
             }  
@@ -162,7 +199,8 @@ int main() {
                             vector<string> temp = {"auipc",tokens[1],"65536"};
                             dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Uformat(temp)<<endl;
                             pc+=4;
-                            tokens[2]="0("+tokens[1]+")";
+                            int n = (varmap[tokens[2]]-268435456);
+                            tokens[2]=to_string(n)+"("+tokens[1]+")";
                         }
                         dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Iformat(tokens)<<endl;
                         pc+=4;
@@ -199,10 +237,12 @@ int main() {
                     dataOutputFile<<"Error"<<endl;
                 }
                 }
-            }
-            else if(tokens.size()==1){
+            }else {
                 tokens[0].pop_back();
-                label[tokens[0]] = pc;
+                if(label.find(tokens[0])==label.end()){
+                    dataOutputFile<<"Command not found"<<endl;
+                    break;
+                }
             }
         }
     }
@@ -211,13 +251,18 @@ int main() {
 
     for(auto it: dataSegment)
     {
-        dataOutputFile<<"0x"<<std::hex<<it.first<<" "<<it.second<<endl;
+        dataOutputFile<<"0x"<<std::hex<<it.first<<" "<<std::hex<<it.second<<endl;
     }
 
-    for(auto it: label)
-    {
-        dataOutputFile<<it.first<<" "<<it.second<<endl;
-    }
+    // for(auto it: label)
+    // {
+    //     dataOutputFile<<it.first<<" "<<it.second<<endl;
+    // }
+
+    // for(auto it: varmap)
+    // {
+    //     dataOutputFile<<it.first<<" "<<std::hex<<it.second<<endl;
+    // }
 
     inputFile.close();
     dataOutputFile.close();
