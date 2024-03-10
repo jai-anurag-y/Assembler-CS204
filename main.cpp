@@ -149,9 +149,9 @@ int main() {
 
 
 
-    // inputFile.clear();             
-    // inputFile.seekg(0, ios::beg);
-    // cout<<"first parse"<<endl;
+    inputFile.clear();             
+    inputFile.seekg(0, ios::beg);
+    cout<<"first parse"<<endl;
     flag=0;
     comment=0;
 
