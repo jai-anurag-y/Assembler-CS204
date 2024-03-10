@@ -17,7 +17,7 @@ int main() {
 
     ifstream inputFile("ex.asm");
     ofstream dataOutputFile("output_data.mc");
-    ofstream dataTokenFile("output_token.mc");
+    //ofstream dataTokenFile("output_token.mc");
     string line;
     int flag=0,comment=0;
 
@@ -40,7 +40,7 @@ int main() {
                     if(!temp.empty() && !comment)
                     {
                         tokens.push_back(temp);
-                        dataTokenFile<<temp<<endl;
+                        //dataTokenFile<<temp<<endl;
                     }
                     temp="";
                     comment=1;
@@ -49,7 +49,7 @@ int main() {
                 else if(c == ',')
                 {
                     tokens.push_back(temp);
-                    dataTokenFile<<temp<<endl;
+                    //dataTokenFile<<temp<<endl;
                     temp="";
                 }
                 else
@@ -60,7 +60,7 @@ int main() {
             if(!temp.empty() && !comment)
             {
                 tokens.push_back(temp);
-                dataTokenFile<<temp<<endl;
+                //dataTokenFile<<temp<<endl;
             }
             temp="";
             if(comment)
@@ -228,7 +228,7 @@ int main() {
                 if(c == '#'){
                     if(!temp.empty() && !comment){
                         tokens.push_back(temp);
-                        dataTokenFile<<temp<<endl;
+                        //dataTokenFile<<temp<<endl;
                     }
                     temp="";
                     comment=1;
@@ -236,7 +236,7 @@ int main() {
                 }
                 else if(c == ','){
                     tokens.push_back(temp);
-                    dataTokenFile<<temp<<endl;
+                    //dataTokenFile<<temp<<endl;
                     temp="";
                 }else{
                     temp+=c;
@@ -244,7 +244,7 @@ int main() {
             }
             if(!temp.empty() && !comment){
                 tokens.push_back(temp);
-                dataTokenFile<<temp<<endl;
+                //dataTokenFile<<temp<<endl;
             }
             temp="";
             if(comment){
@@ -285,11 +285,11 @@ int main() {
                     {
                         if(varmap.find(tokens[2])!=varmap.end() && tokens[0][0]=='l'){
                             int num = data>>12;
-                            num = data<<12;
                             vector<string> temp = {"auipc",tokens[1],to_string(num)};
-                            dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Uformat(temp)<<endl;
+                            dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Uformat(temp)<<endl;             
+                            num = num<<12;
+                            int n = (varmap[tokens[2]]-num-pc);
                             pc+=4;
-                            int n = (varmap[tokens[2]]-data);
                             tokens[2]=to_string(n)+"("+tokens[1]+")";
                         }
                         dataOutputFile<<"0x"<<std::hex<<pc<<" "<<Iformat(tokens)<<endl;
@@ -304,7 +304,9 @@ int main() {
                     }
                 case 'b':
                     {
-                        tokens[3]=to_string(label[tokens[3]]-pc);
+                        if(label.find(tokens[3])!=label.end()){
+                            tokens[3]=to_string(label[tokens[3]]-pc);
+                        }
                         dataOutputFile<<"0x"<<std::hex<<pc<<" "<<SBformat(tokens)<<endl;
                         pc+=4;
                         break;
@@ -317,7 +319,9 @@ int main() {
                     }
                 case 'j':
                     {
-                        tokens[2]=to_string(label[tokens[2]]-pc);
+                        if(label.find(tokens[2])!=label.end()){
+                            tokens[2]=to_string(label[tokens[2]]-pc);
+                        }
                         dataOutputFile<<"0x"<<std::hex<<pc<<" "<<UJformat(tokens)<<endl;
                         pc+=4;
                         break;
@@ -341,7 +345,7 @@ int main() {
 
     for(auto it: dataSegment)
     {
-        dataOutputFile<<"0x"<<std::hex<<it.first<<" "<<std::hex<<it.second<<endl;
+        dataOutputFile<<"0x"<<std::hex<<it.first<<" 0x"<<std::hex<<it.second<<endl;
     }
 
     // for(auto it: label)
@@ -356,7 +360,7 @@ int main() {
 
     inputFile.close();
     dataOutputFile.close();
-    dataTokenFile.close();
+    //dataTokenFile.close();
 
     return 0;
 }
