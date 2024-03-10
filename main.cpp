@@ -15,8 +15,8 @@ int main() {
     map<int,int> dataSegment;
     map<string,int> label;
 
-    ifstream inputFile("ex.asm");
-    ofstream dataOutputFile("output_data.mc");
+    ifstream inputFile("input.asm");
+    ofstream dataOutputFile("output.mc");
     //ofstream dataTokenFile("output_token.mc");
     string line;
     int flag=0,comment=0;
@@ -151,7 +151,6 @@ int main() {
 
     inputFile.clear();             
     inputFile.seekg(0, ios::beg);
-    cout<<"first parse"<<endl;
     flag=0;
     comment=0;
 
@@ -188,7 +187,7 @@ int main() {
                 if(token[a-1]==':' && !flag){
                     token.pop_back();
                     label[token]=pc;
-                    cout<<"Stored"<<endl;
+                    //cout<<"Stored"<<endl;
                 }
                 else if(!flag){
                     pc+=4;
@@ -209,7 +208,6 @@ int main() {
 
     inputFile.clear();             
     inputFile.seekg(0, ios::beg);
-    cout<<"first parse"<<endl;
 
     pc=0;
     flag=0;
