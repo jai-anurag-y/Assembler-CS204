@@ -72,7 +72,8 @@ The assembler supports the following commands:
    ```bash
    g++ main.cpp
 
-2. Execute the executable file and ensure there is a file "input.asm" to provide input.
+2. Execute the executable file and ensure there is a file "input.asm" to provide input. A sample code has been provided in the "input.asm" in this repository.
+
    For Windows:
    ```bash
    ./a.exe
