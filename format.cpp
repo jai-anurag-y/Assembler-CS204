@@ -120,14 +120,19 @@ string Iformat (vector <string> &instruction)
         rs1 = stoi((str.substr(start_pos+1,end_pos - start_pos -1)).substr(1));
     }
 
+    if(imm>2047 || imm<-2048){
+        return "Immediate value out of bounds";
+    }
 
-    ll machineCode = (imm << 20) | (rs1 << 15) | (func3 << 12) | (rd << 7) | opcode;
-    stringstream ss;
-    ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
+    else{
+        ll machineCode = (imm << 20) | (rs1 << 15) | (func3 << 12) | (rd << 7) | opcode;
+        stringstream ss;
+        ss << hex << "0x" << uppercase << std::setw(8) << std::setfill('0') << machineCode;
 
 
-    cout << ss.str()<< endl;
-    return ss.str();
+        cout << ss.str()<< endl;
+        return ss.str();
+    }
 }
 
 
@@ -186,6 +191,8 @@ string Sformat (vector <string> &instruction)
         imm = (1 << 12) + imm;
         imm = imm & 0xFFF;
     }
+
+    
 
     ll imm1,imm2;
     imm1 = (imm>>5) & 127;
