@@ -1,0 +1,39 @@
+O3_CPU ooo_cpu[NUM_CPUS]; 		ooo_cpu.cc
+
+class O3_CPU {				ooo_cpu.h
+	CACHE ITLB { ... }
+	CACHE DTLB { ... }
+	...
+}
+
+class MEMORY {
+    MEMORY *upper_level_icache[NUM_CPUS], *upper_level_dcache[NUM_CPUS], *lower_level, *extra_interface;
+    PACKET_QUEUE WQ{"EMPTY", 1}, RQ{"EMPTY", 1}, PQ{"EMPTY", 1}, MSHR{"EMPTY", 1};
+    uint64_t ACCESS[NUM_TYPES], HIT[NUM_TYPES], MISS[NUM_TYPES], MSHR_MERGED[NUM_TYPES], STALL[NUM_TYPES];
+}
+
+class CACHE : public MEMORY {   					//(inheritance)
+
+    BLOCK **block;
+    int fill_level;
+    uint8_t cache_type;
+}
+
+class BLOCK {
+    uint64_t address,
+             full_addr,
+             tag,
+             data
+}
+
+
+line 790, main.cc
+
+
+CHANGES (mostly)
+
+1108	cache.cc
+1139	cache.cc
+796	main.cc
+998	main.cc
+1060	cache.cc
